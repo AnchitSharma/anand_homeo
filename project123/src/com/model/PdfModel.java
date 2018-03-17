@@ -165,8 +165,8 @@ public class PdfModel {
 			for(int i =0;i<model.size();i++) {
 				table.addCell(model.get(i).getMed_name());
 				table.addCell(model.get(i).getTabCount()+"*"+model.get(i).getPrice_per_piece());
-				table.addCell(model.get(i).getMed_price());
-				amt = amt + Double.parseDouble(model.get(i).getMed_price());
+				table.addCell(String.valueOf(model.get(i).getMed_price()));
+				amt = amt + Double.parseDouble(String.valueOf(model.get(i).getMed_price()));
 			}
 			document.add(table);
 			

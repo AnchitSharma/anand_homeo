@@ -1400,7 +1400,7 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		table.getColumnModel().getColumn(4).setMaxWidth(0);
 		table.getColumnModel().getColumn(5).setMaxWidth(0);
 		table.getColumnModel().getColumn(6).setMaxWidth(0);
-		table.getColumnModel().getColumn(4).setModelIndex(-1);
+		
 		scrollPane.setViewportView(table);
 		JTableHeader hone = table.getTableHeader();
 		hone.setFont(new Font("Times New Roman", Font.BOLD, 15));

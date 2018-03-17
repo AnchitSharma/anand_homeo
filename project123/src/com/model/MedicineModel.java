@@ -4,12 +4,12 @@ public class MedicineModel {
 
 	String date;
 	String med_name;
-	String med_price;
+	Object med_price;
 	String quantity,price_per_piece,tabCount;
 	String drop_by_patient, drop_by_doctor;
 	
 	
-	public MedicineModel(String med_name, String med_price, String quantity, 
+	public MedicineModel(String med_name, Object med_price, String quantity, 
 			String price_per_piece,String tabCount) {
 		super();
 		this.med_name = med_name;
@@ -20,7 +20,7 @@ public class MedicineModel {
 	}
 	
 	
-	public MedicineModel(String date, String med_name, String med_price, String quantity, String price_per_piece,
+	public MedicineModel(String date, String med_name, Object med_price, String quantity, String price_per_piece,
 			String tabCount) {
 		super();
 		this.date = date;
@@ -32,7 +32,7 @@ public class MedicineModel {
 	}
 
 
-	public MedicineModel(String date, String med_name, String med_price, String quantity, String price_per_piece,
+	public MedicineModel(String date, String med_name, Object med_price, String quantity, String price_per_piece,
 			String tabCount, String drop_by_patient, String drop_by_doctor) {
 		super();
 		this.date = date;
@@ -67,7 +67,7 @@ public class MedicineModel {
 	public String getMed_name() {
 		return med_name;
 	}
-	public String getMed_price() {
+	public Object getMed_price() {
 		return med_price;
 	}
 	public String getQuantity() {

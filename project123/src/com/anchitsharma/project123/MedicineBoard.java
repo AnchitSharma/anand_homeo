@@ -353,7 +353,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 
 				txt_quant.setText(null);
 				txt_price1.setText(null);
-				txt_tab_num.setText(null);
+				
 
 			}
 
@@ -624,7 +624,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 					savedata.put("medicine_id", medname);
 
 
-					double med_price = Double.parseDouble((String)medicine_model.getValueAt(i, 5));
+					Object med_price = medicine_model.getValueAt(i, 5);
 					String quant = (String) medicine_model.getValueAt(i, 2);
 					savedata.put("quantity", quant);
 					String price_piece = (String) medicine_model.getValueAt(i, 3);
@@ -636,7 +636,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 					savedata.put("cancel_patient", 1);
 				
 					medicineModels.add(
-								new MedicineModel(medname, String.valueOf(med_price), quant, price_piece, tab_count));
+								new MedicineModel(medname, med_price, quant, String.valueOf(price_piece), tab_count));
 					sm.storeInDatabase("medicine_order_table", savedata);
 				}
 
@@ -1223,7 +1223,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		panel_4.add(btnSave);
 
 		button = new JButton("Close");
-		
+		button.addActionListener(this);
 		button.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		button.setBounds(299, 103, 96, 26);
 		panel_4.add(button);

@@ -675,10 +675,10 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 							/*new Patient("", txt_patientID.getText(), txt_pname.getText(), "", "", "", "", "", "",
 							txt_pmobile.getText());*/
 					PdfModel pdfModel = new PdfModel();
-					pdfModel.prepareReceipt(txt_invoice.getText(), medicineModels, pat);
+					pdfModel.prepareReceipt(txt_invoice.getText(), medicineModels, txt_patientID.getText());
 				
 				if (chckbxByCourier.isSelected()) {
-					pdfModel.courierReceipt("courier_invoice", pat);
+					pdfModel.courierReceipt("courier_invoice", txt_patientID.getText());
 				}
 				resetTextFields();
 				txt_invoice.setText(JavaConnect.uniqueCurrentTimeStamp());

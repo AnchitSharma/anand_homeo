@@ -315,34 +315,62 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 
 		columns = new ArrayList<>();
 		where = new HashMap<>();
-		columns.add("p_id");
-		columns.add("p_name");
-		columns.add("p_add");
+		columns.add("p_id");//0
+		columns.add("p_name");//1
+		columns.add("p_add");//2
 
-		columns.add("p_blood");
-		columns.add("p_gender");
-		columns.add("p_age");
-		columns.add("amt_paid");
-		columns.add("refer_id");
-		columns.add("occupation");
-		columns.add("p_district");
-		columns.add("pincode");
+		columns.add("p_blood");//3
+		columns.add("p_gender");//4
+		columns.add("p_age");//5
+		columns.add("amt_paid");//6
+		columns.add("refer_id");//7
+		columns.add("occupation");//8
+		columns.add("p_district");//9
+		columns.add("pincode");//10
+		columns.add("p_dob");//11
+		columns.add("p_blood");//12
+		//columns.add("marry_stat");//12
 		where.put("p_mobile", mobile);
 		String p_id = "";
 		selectdata = sm.selectData("patient_table", columns, where);
+		
+		
 		for (List<String> strList : selectdata) {
 			p_id = strList.get(0);
 			txt_regno_tab2.setText(p_id);
 			txt_pname_tab2.setText(strList.get(1));
 			txt_padd.setText(strList.get(2));
 			cmbBloodG.setSelectedItem(strList.get(3));
-			cmbGender.setSelectedItem(strList.get(4));
+			
 			txt_page.setText(strList.get(5));
 			txt_payment.setText(strList.get(6));
-			txt_ref_name.setSelectedItem((String) sm.searchNameByID(strList.get(7)));
+			txt_ref_mob.setText(strList.get(7));
+			txt_ref_name.setSelectedItem(sm.searchNameMobile(strList.get(7)));
 			txt_occupation.setText(strList.get(8));
 			txt_district.setText(strList.get(9));
 			txt_pincode.setText(strList.get(10));
+			if(strList.get(4).equals("Female")||strList.get(4).equals("f")) {
+				cmbGender.setSelectedItem("F");
+			}else {
+				cmbGender.setSelectedItem("M");
+			}
+			if(!strList.get(11).isEmpty()&&strList.get(11)!= null&&strList.get(11) != " ") {
+				
+				try {
+					Date d;
+					d = dateFormat.parse(strList.get(11));
+					dobChooser.setDate(d);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+			
+			String blood = strList.get(12);
+			if(blood != null && blood.equals("")) {
+				cmbBloodG.setSelectedItem(blood);
+			}
 		}
 
 		// I have used this function to get the invoice id on which appoint is being
@@ -589,7 +617,8 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		what.put("p_age", txt_page.getText());
 		what.put("amt_paid", txt_payment.getText());
 		what.put("refer_id", txt_ref_mob.getText());
-
+		what.put("p_dob", dateFormat.format(dobChooser.getDate()));
+		
 		sm.updateDatabase("patient_table", where, what);
 
 		// update appointment table
@@ -663,8 +692,7 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		// columnsInsert.put("discount", txt_t_disc.getText());
 		// columnsInsert.put("total_payable", txt_t_total.getText());
 		columnsInsert.put("payment", txt_payment.getText());
-		// columnsInsert.put("gst_apply", txt_total_vat.getText());
-		// columnsInsert.put("due", txt_due.getText());
+		
 
 		sm.storeInDatabase("invoice_table", columnsInsert);
 		System.out.println("Entry Complete");
@@ -696,7 +724,8 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		// columnsInsert.put("p_amt_due", txt_due.getText().trim());
 		columnsInsert.put("amt_paid", txt_payment.getText().trim());
 		columnsInsert.put("reg_date", dateFormat.format(invoice_date.getDate()));
-
+		columnsInsert.put("p_dob", dateFormat.format(dobChooser.getDate()));
+		columnsInsert.put("marry_stat", cmbMarry.getSelectedItem());
 		// columnsInsert.put("p_doc_id", Integer.valueOf(txt_dcode.getText()));
 		if (!txt_ref_mob.getText().isEmpty()) {
 			columnsInsert.put("refer_id", txt_ref_mob.getText());
@@ -1048,16 +1077,10 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		label_21.setBounds(10, 95, 85, 25);
 		panel_5.add(label_21);
 
-		JComboBox comboBox_6 = new JComboBox();
-		comboBox_6.setModel(new DefaultComboBoxModel(new String[] { "Mr.", "Mrs.", "Mis." }));
-		comboBox_6.setFont(new Font("Times New Roman", Font.BOLD, 12));
-		comboBox_6.setBounds(105, 95, 51, 26);
-		panel_5.add(comboBox_6);
-
 		txt_pname_tab2 = new JTextField();
 		txt_pname_tab2.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		txt_pname_tab2.setColumns(10);
-		txt_pname_tab2.setBounds(162, 95, 129, 25);
+		txt_pname_tab2.setBounds(105, 95, 186, 25);
 		panel_5.add(txt_pname_tab2);
 
 		JLabel label_22 = new JLabel("Mobile");

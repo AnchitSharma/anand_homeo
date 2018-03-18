@@ -35,8 +35,8 @@ public class PdfModel {
 	
 	private Document document;
 	private Date date = new Date();
-	private DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_PATTERN);
-
+	private DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_PATTERN);	
+	private SearchModels sm = new SearchModels();
 	
 
 	public void prepareReceipt(String invoice_num, Patient patient) {
@@ -99,9 +99,10 @@ public class PdfModel {
 	}
 	
 	
-	public void prepareReceipt(String invoice_num,List<MedicineModel> model,Patient patient) {
+	public void prepareReceipt(String invoice_num,List<MedicineModel> model,String pid) {
 	
 		document = new Document();
+		Patient patient = sm.getPatient(pid);
 		String doc_name =  "resource/"+invoice_num + ".pdf";
 		double amt = 0;
 		try {
@@ -195,8 +196,9 @@ public class PdfModel {
 		}
 	}
 	
-	public void courierReceipt(String invoice,Patient pat) {
+	public void courierReceipt(String invoice,String pid) {
 		document = new Document();
+		Patient pat =sm.getPatient(pid);
 		String doc_name =  "resource/"+invoice + ".pdf";
 		
 		try {

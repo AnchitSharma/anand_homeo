@@ -399,7 +399,7 @@ public class SearchModels {
 			s1 = sql.substring(0, sql.length() - "and ".length());
 		}
 
-		System.out.println(s1);
+		//System.out.println(s1);
 		
 		try {
 			pst = conn.prepareStatement(s1);

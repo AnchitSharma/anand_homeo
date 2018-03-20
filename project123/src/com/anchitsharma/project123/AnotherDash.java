@@ -1591,7 +1591,8 @@ public class AnotherDash implements ActionListener, PatientListener {
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
-						JFrame fr = new PatientDetails(id);
+						PatientDetails fr = new PatientDetails(id);
+						fr.setDataInTable(id);
 						fr.setVisible(true);
 					}
 				});

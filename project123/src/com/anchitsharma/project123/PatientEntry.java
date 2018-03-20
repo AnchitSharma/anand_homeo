@@ -105,7 +105,7 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 	private Map<String, String> patientMap;
 	List<String> columns;
 	Map<String, Object> where;
-	String col[] = { "S.NO.", "PT.NAME", "REG.NO.", "M.NO.","status","dept","attend" };
+	String col[] = { "S.NO.", "PT.NAME", "REG.NO.", "M.NO." };
 	String col1[] = { "Date", "Doc Name", "Doc Path" };
 	
 	private JButton btnNewApp;
@@ -329,7 +329,7 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		columns.add("pincode");//10
 		columns.add("p_dob");//11
 		columns.add("p_blood");//12
-		//columns.add("marry_stat");//12
+		columns.add("marry_stat");//13
 		where.put("p_mobile", mobile);
 		String p_id = "";
 		selectdata = sm.selectData("patient_table", columns, where);
@@ -349,7 +349,7 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 			txt_occupation.setText(strList.get(8));
 			txt_district.setText(strList.get(9));
 			txt_pincode.setText(strList.get(10));
-			if(strList.get(4).equals("Female")||strList.get(4).equals("f")) {
+			if(strList.get(4).equals("Female")||strList.get(4).equals("F")) {
 				cmbGender.setSelectedItem("F");
 			}else {
 				cmbGender.setSelectedItem("M");
@@ -370,6 +370,10 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 			String blood = strList.get(12);
 			if(blood != null && blood.equals("")) {
 				cmbBloodG.setSelectedItem(blood);
+			}
+			String marry = strList.get(13);
+			if(null != marry&&!marry.isEmpty()&&!marry.equals("")) {
+				cmbMarry.setSelectedItem(marry);
 			}
 		}
 
@@ -535,6 +539,7 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 			String reg_date = dateFormat.format(invoice_date.getDate());
 			String p_id = "";
 			String referal = "";
+			String mesg =null;
 			if (!txt_regno_tab2.getText().isEmpty()) {
 				p_id = txt_regno_tab2.getText();
 			} else {
@@ -542,8 +547,14 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 			}
 
 			String p_name = txt_pname_tab2.getText();
+			if(p_name.isEmpty()) {
+				mesg = "Please Enter Patient Name \n";
+			}
 			String p_add = txt_padd.getText();
 			String mobile = txt_pmobile_tab2.getText();
+			if(mobile.length()!=10||!mobile.matches("\\d+")) {
+				mesg = "Please Enter valid mobile number";
+			}
 			String p_bill_amt = txt_payment.getText();
 
 			if (txt_ref_name.getSelectedItem() != null) {
@@ -560,12 +571,14 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 			Patient p;
 			p = new Patient(reg_date, p_id, p_name, p_bill_amt, "", "", "", referal, p_add,mobile, txt_district.getText(),
 					txt_pincode.getText(), "", "", "");
-			if (!p_name.isEmpty() && !mobile.isEmpty()) {
-
+			if (mesg == null) {
+			
 				invoice_id_tab2 = txt_invoice_tab2.getText();
 				System.out.println("invoice id :" + invoice_id_tab2);
 //				new PdfModel().prepareReceipt(invoice_id_tab2, p);
 				loadDataInDatabase(p);
+			}else {
+				showConformMessage(1, mesg);
 			}
 
 		}
@@ -617,8 +630,11 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		what.put("p_age", txt_page.getText());
 		what.put("amt_paid", txt_payment.getText());
 		what.put("refer_id", txt_ref_mob.getText());
-		what.put("p_dob", dateFormat.format(dobChooser.getDate()));
-		
+		if(dobChooser.getDate() != null) {
+			what.put("p_dob", dateFormat.format(dobChooser.getDate()));
+		}
+		what.put("p_dob", "");
+		what.put("marry_stat", cmbMarry.getSelectedItem());
 		sm.updateDatabase("patient_table", where, what);
 
 		// update appointment table
@@ -642,7 +658,11 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 	private void showConformMessage(int count, String mesg) {
 		// TODO Auto-generated method stub
 
-		JOptionPane.showMessageDialog(null, mesg);
+		if(count == 1) {
+			JOptionPane.showMessageDialog(null, mesg,"Alert",JOptionPane.ERROR_MESSAGE);
+		}else {
+			JOptionPane.showMessageDialog(null, mesg);
+		}
 
 	}
 
@@ -687,20 +707,14 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		columnsInsert.put("date", date);
 		columnsInsert.put("p_id", txt_regno_tab2.getText());
 		columnsInsert.put("p_mobile", txt_pmobile_tab2.getText());
-		// columnsInsert.put("doc_id", txt_dcode.getText());
-		// columnsInsert.put("total_fee", txt_total_price.getText());
-		// columnsInsert.put("discount", txt_t_disc.getText());
-		// columnsInsert.put("total_payable", txt_t_total.getText());
+		
 		columnsInsert.put("payment", txt_payment.getText());
 		
 
 		sm.storeInDatabase("invoice_table", columnsInsert);
-		System.out.println("Entry Complete");
+		
 
-		// String sql1 = "insert into patient_table ( p_name, p_mobile, p_dob, p_add,
-		// p_blood, p_gender, p_age,"
-		// + "p_bill_amt,p_amt_due,amt_paid,reg_date,p_doc_id,refer_id) values
-		// (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	
 
 		columnsInsert = new HashMap<>();
 		columnsInsert.put("p_id", txt_regno_tab2.getText());
@@ -724,7 +738,9 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		// columnsInsert.put("p_amt_due", txt_due.getText().trim());
 		columnsInsert.put("amt_paid", txt_payment.getText().trim());
 		columnsInsert.put("reg_date", dateFormat.format(invoice_date.getDate()));
-		columnsInsert.put("p_dob", dateFormat.format(dobChooser.getDate()));
+		if(dobChooser.getDate() != null) {
+			columnsInsert.put("p_dob", dateFormat.format(dobChooser.getDate()));
+		}
 		columnsInsert.put("marry_stat", cmbMarry.getSelectedItem());
 		// columnsInsert.put("p_doc_id", Integer.valueOf(txt_dcode.getText()));
 		if (!txt_ref_mob.getText().isEmpty()) {
@@ -745,6 +761,7 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		columnsInsert.put("reg_date", dateFormat.format(invoice_date.getDate()));
 		columnsInsert.put("p_mobile", txt_pmobile_tab2.getText());
 		sm.storeInDatabase("appointment", columnsInsert);
+		showConformMessage(0, "Data saved SuccessFully");
 		refreshFields();
 	}
 
@@ -1178,7 +1195,7 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		Image image = new ImageIcon(this.getClass().getResource("/attendence.png")).getImage();
 
 		JLabel lblRefrence = new JLabel("Reference");
-		lblRefrence.setBounds(10, 259, 213, 26);
+		lblRefrence.setBounds(10, 259, 97, 26);
 		panel_5.add(lblRefrence);
 		lblRefrence.setFont(new Font("Times New Roman", Font.BOLD, 18));
 
@@ -1382,6 +1399,12 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		txt_pincode.setBounds(285, 162, 134, 25);
 		panel_5.add(txt_pincode);
 		
+		JLabel lblUseMobileNo = new JLabel("USE MOBILE NO. FOR REFRENCE");
+		lblUseMobileNo.setForeground(Color.RED);
+		lblUseMobileNo.setFont(new Font("Times New Roman", Font.BOLD, 18));
+		lblUseMobileNo.setBounds(117, 259, 385, 26);
+		panel_5.add(lblUseMobileNo);
+		
 		
 		btnclose.addActionListener(this);
 		btnsaveshow.addActionListener(this);
@@ -1407,22 +1430,15 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		appoint_model = new MyTableModel();
 		appoint_model.setColumnNames(col);
 		table.setModel(appoint_model);
-		table.setDefaultRenderer(Object.class, new AppointmentRenderer());
+		//table.setDefaultRenderer(Object.class, new AppointmentRenderer());
 		
 		table.getColumnModel().getColumn(0).setMaxWidth(55);
 		table.getColumnModel().getColumn(2).setMinWidth(200);
 		table.getColumnModel().getColumn(2).setMaxWidth(200);
 		table.getColumnModel().getColumn(3).setMinWidth(200);
 		table.getColumnModel().getColumn(3).setMaxWidth(200);
-		//{ "S.NO.", "PT.NAME", "REG.NO.", "M.NO.","status"
-		//,"dept","attend" };
-		table.getColumnModel().getColumn(4).setPreferredWidth(0);
-		table.getColumnModel().getColumn(4).setWidth(0);
-		table.getColumnModel().getColumn(5).setWidth(0);
-		table.getColumnModel().getColumn(6).setWidth(0);
-		table.getColumnModel().getColumn(4).setMaxWidth(0);
-		table.getColumnModel().getColumn(5).setMaxWidth(0);
-		table.getColumnModel().getColumn(6).setMaxWidth(0);
+		//{ "S.NO.", "PT.NAME", "REG.NO.", "M.NO.", };
+		
 		
 		scrollPane.setViewportView(table);
 		JTableHeader hone = table.getTableHeader();
@@ -1637,7 +1653,9 @@ private JTable table_tab4;
 		columns.add("status");//4
 		where.put("app_date", date);
 		selectdata = sm.selectData("appointment", columns, where);
+		
 		if (!selectdata.isEmpty()) {
+			table.setDefaultRenderer(Object.class, new AppointmentRenderer(selectdata));
 			int i = 0;
 			int come = 0;
 			int newp = 0, rep = 0,old =0, courier = 0,cancel = 0,oil =0, absent=0;;
@@ -1655,9 +1673,8 @@ private JTable table_tab4;
 
 				}
 				tabledata.put(col[3], strList.get(1));
-				tabledata.put(col[4], strList.get(4));
-				tabledata.put(col[5], strList.get(2));
-				tabledata.put(col[6], strList.get(3));
+			
+				
 				
 				appoint_model.addRow(new RowData(tabledata));
 				
@@ -1699,6 +1716,8 @@ private JTable table_tab4;
 				txt_oil.setText(String.valueOf(oil));
 				txt_absent.setText(String.valueOf(absent));
 			}
+		}else {
+			showConformMessage(0, "No Data Avaliable..!!");
 		}
 	}
 	
@@ -1706,11 +1725,21 @@ private JTable table_tab4;
 		
 		JTextField label;
 		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+		List<List<String>> selectdata;
 		Date date = new Date();
+		
+		
+		public AppointmentRenderer(List<List<String>> selectdata) {
+			super();
+			this.selectdata = selectdata;
+		}
+
+
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected
 				, boolean hasFocus, int row,
 				int column) {
+			
 			
 			label = new JTextField();
 			label.setFont(new Font("Times New Roman", Font.BOLD, 10));
@@ -1718,11 +1747,17 @@ private JTable table_tab4;
 				label.setText(value.toString());
 				//String col[] = { "S.NO.", "PT.NAME", "REG.NO.", "M.NO.","status","dept","attend" };
 					Object val = table.getValueAt(row, 2);
-				
-				
-					String dept = (String)table.getValueAt(row, 5);
-					String attend = (String)table.getValueAt(row, 6);
-					String stat = (String)table.getValueAt(row, 4);
+				//564
+					
+					/*columns.add("p_id");//0
+					columns.add("p_mobile");//1
+					columns.add("dept");//2
+					columns.add("attend");//3
+					columns.add("status");//4
+*/				
+					String dept = selectdata.get(row).get(2);
+					String attend = selectdata.get(row).get(3);
+					String stat = selectdata.get(row).get(4);
 					switch(dept) {
 					case Constants.old:
 						

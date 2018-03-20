@@ -465,47 +465,52 @@ public class PatientDetails extends JFrame implements ActionListener {
 				return;
 			}
 			String pid = (String) model.getValueAt(table.getSelectedRow(), 0);
-			if (!pid.isEmpty()) {
-				columns = new ArrayList<>();
-				map = new HashMap<>();
-				columns.add("p_id");//0
-				columns.add("p_name");//1
-				columns.add("p_mobile");//2
-				columns.add("p_dob");//3
-				columns.add("p_add");//4
-				columns.add("p_district");//5
-				columns.add("pincode");//6
-				columns.add("occupation");//7
-				columns.add("p_blood");//8
-				columns.add("p_gender");//9
-				columns.add("p_age");//10
-				columns.add("refer_id");//11
-				columns.add("last_visited");//12
-				columns.add("reg_date");//13
-				columns.add("active");//14
-				map.put("p_id", pid);
-				selectdata = sm.selectData("patient_table", columns, map);
-				if (!selectdata.isEmpty()) {
-					for(List<String> strList:selectdata) {
-						patient = new Patient(strList.get(13),strList.get(0), strList.get(1), "", "", "", "",
-								strList.get(11), strList.get(4), strList.get(2), strList.get(5), strList.get(6)
-								, strList.get(9), strList.get(10), strList.get(7));
-					setDataInTextArea(patient);
-					if (strList.get(14).equals("0")) {
-						chckbxActive.setSelected(false);
-					}else {
-						chckbxActive.setSelected(true);
-					}
-					setDataInAppointment(pid);
-					setMedicineTable(pid);
-					}
-				}
-			}
+			setDataInTable(pid);
 			//
 		}
 
 	}
 
+	public void setDataInTable(String pid) {
+		if (!pid.isEmpty()) {
+			columns = new ArrayList<>();
+			map = new HashMap<>();
+			columns.add("p_id");//0
+			columns.add("p_name");//1
+			columns.add("p_mobile");//2
+			columns.add("p_dob");//3
+			columns.add("p_add");//4
+			columns.add("p_district");//5
+			columns.add("pincode");//6
+			columns.add("occupation");//7
+			columns.add("p_blood");//8
+			columns.add("p_gender");//9
+			columns.add("p_age");//10
+			columns.add("refer_id");//11
+			columns.add("last_visited");//12
+			columns.add("reg_date");//13
+			columns.add("active");//14
+			map.put("p_id", pid);
+			selectdata = sm.selectData("patient_table", columns, map);
+			if (!selectdata.isEmpty()) {
+				for(List<String> strList:selectdata) {
+					patient = new Patient(strList.get(13),strList.get(0), strList.get(1), "", "", "", "",
+							strList.get(11), strList.get(4), strList.get(2), strList.get(5), strList.get(6)
+							, strList.get(9), strList.get(10), strList.get(7));
+				setDataInTextArea(patient);
+				if (strList.get(14).equals("0")) {
+					chckbxActive.setSelected(false);
+				}else {
+					chckbxActive.setSelected(true);
+				}
+				setDataInAppointment(pid);
+				setMedicineTable(pid);
+				}
+			}
+		}else {
+			
+		}
+	}
 	public void setDataInTextArea(Patient pat) {
 		// TODO Auto-generated method stub
 	reg_id.setText(pat.getP_id());

@@ -1,7 +1,8 @@
 package com.utility;
 
 public class Patient  {
-	String reg_date, p_id,p_name, p_bill_amt,p_amt_due,amt_paid ,p_doc_name,refer_name,p_add,p_mobile;
+	String reg_date, p_id,p_name, p_bill_amt,p_amt_due,amt_paid 
+	,p_doc_name,refer_name,p_add,p_mobile;
 	String district,pincode,gender,age,occupation;
 	public Patient(String reg_date, String p_id, String p_name, String p_bill_amt, String p_amt_due, String amt_paid,
 			String p_doc_name, String refer_name, String p_add,String p_mobile) {

@@ -45,10 +45,6 @@ import javax.swing.JComboBox;
 public class PatientDetails extends JFrame implements ActionListener {
 
 	private JPanel contentPane;
-	private JTextField textFieldID;
-	private JTextField textFieldName;
-	private JTextField textFieldMobile;
-	private JTable table;
 	String col4[] = { "Reg.No.", "Name", "Mobile" };
 	String col5[] = { "App date", "Type", "Status","Remarks" };
 	String col6[] = { "Date","Name","drop by patient","drop by doctor" };
@@ -57,7 +53,6 @@ public class PatientDetails extends JFrame implements ActionListener {
 	private List<List<String>> selectdata;
 	private SearchModels sm = new SearchModels();
 	private MyTableModel model,appModel,medModel;
-	private JButton btnSearch = new JButton("Search");
 	private JButton btnInActive;
 	private JButton btnPrint;
 	private JPanel panel_1;
@@ -109,72 +104,8 @@ public class PatientDetails extends JFrame implements ActionListener {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-
-		JLabel label = new JLabel("Registartion No.");
-		label.setHorizontalAlignment(SwingConstants.CENTER);
-		label.setFont(new Font("Times New Roman", Font.BOLD, 14));
-		label.setBounds(21, 12, 112, 20);
-		contentPane.add(label);
-
-		textFieldID = new JTextField();
-		textFieldID.setText(id);
-		textFieldID.setFont(new Font("Times New Roman", Font.BOLD, 12));
-		textFieldID.setColumns(10);
-		textFieldID.setBounds(137, 11, 96, 20);
-		contentPane.add(textFieldID);
-		/*
-		 * textFieldID.getDocument().addDocumentListener(this);
-		 * textFieldID.getDocument().putProperty("textFieldID", textFieldID);
-		 */
-		JLabel label_1 = new JLabel("Patient Name");
-		label_1.setHorizontalAlignment(SwingConstants.CENTER);
-		label_1.setFont(new Font("Times New Roman", Font.BOLD, 14));
-		label_1.setBounds(10, 41, 123, 20);
-		contentPane.add(label_1);
-
-		textFieldName = new JTextField();
-
-		textFieldName.setFont(new Font("Times New Roman", Font.BOLD, 12));
-		textFieldName.setColumns(10);
-		textFieldName.setBounds(137, 41, 96, 20);
-		contentPane.add(textFieldName);
-		/*
-		 * textFieldName.getDocument().addDocumentListener(this);
-		 * textFieldName.getDocument().putProperty("textFieldName", textFieldName);
-		 */
-		JLabel label_2 = new JLabel("Mobile No.");
-		label_2.setHorizontalAlignment(SwingConstants.CENTER);
-		label_2.setFont(new Font("Times New Roman", Font.BOLD, 14));
-		label_2.setBounds(10, 72, 123, 20);
-		contentPane.add(label_2);
-
-		textFieldMobile = new JTextField();
-
-		textFieldMobile.setFont(new Font("Times New Roman", Font.BOLD, 12));
-		textFieldMobile.setColumns(10);
-		textFieldMobile.setBounds(137, 71, 96, 20);
-		contentPane.add(textFieldMobile);
-		/*
-		 * textFieldMobile.getDocument().addDocumentListener(this);
-		 * textFieldMobile.getDocument().putProperty("textFieldMobile",
-		 * textFieldMobile);
-		 */
-		JPanel panel = new JPanel();
-		panel.setBounds(10, 173, 223, 352);
-		contentPane.add(panel);
-		panel.setLayout(new BorderLayout(0, 0));
-
-		JScrollPane scrollPane = new JScrollPane();
-		panel.add(scrollPane, BorderLayout.CENTER);
 		model = new MyTableModel();
 		model.setColumnNames(col4);
-		table = new JTable();
-
-		table.setModel(model);
-		JTableHeader header = table.getTableHeader();
-		table.getSelectionModel().addListSelectionListener(new RowListener());
-		scrollPane.setViewportView(table);
-		panel.add(BorderLayout.NORTH, header);
 		chckbxActive = new JCheckBox("Active");
 		chckbxActive.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		chckbxActive.setBounds(21, 532, 97, 23);
@@ -191,11 +122,6 @@ public class PatientDetails extends JFrame implements ActionListener {
 		btnPrint.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		btnPrint.setBounds(136, 566, 97, 23);
 		contentPane.add(btnPrint);
-
-		btnSearch.addActionListener(this);
-		btnSearch.setFont(new Font("Times New Roman", Font.BOLD, 13));
-		btnSearch.setBounds(137, 107, 89, 23);
-		contentPane.add(btnSearch);
 		
 		panel_1 = new JPanel();
 		panel_1.setBounds(237, 11, 647, 604);
@@ -368,26 +294,9 @@ public class PatientDetails extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		if (e.getSource() == btnSearch) {
-
-			if (!textFieldID.getText().isEmpty()) {
-				searchPatient("p_id", textFieldID.getText());
-			}
-
-			if (!textFieldName.getText().isEmpty()) {
-				searchPatient("p_name", textFieldName.getText());
-			}
-
-			if (!textFieldMobile.getText().isEmpty() && textFieldMobile.getText().length() >= 10) {
-				searchPatient("p_mobile", textFieldMobile.getText());
-			} else {
-				showConfromMessage("Please Enter a Valid Mobile Number");
-			}
-		}
 
 		if (e.getSource() == btnInActive) {
-			String pid = (String) model.getValueAt(table.getSelectedRow(), 0);
+			String pid = reg_id.getText();
 			if (!pid.isEmpty()) {
 				map = new HashMap<>();
 				Map<String, Object> what = new HashMap<>();
@@ -418,7 +327,7 @@ public class PatientDetails extends JFrame implements ActionListener {
 				medList.add(new MedicineModel(date, type, "", "", "", "", drop_patient, drop_doctor));
 			}
 			if (patient != null) {
-				new PdfModel().printHistory(patient, appList, medList);
+				new PdfModel().printHistory(patient.getP_id(), appList, medList);
 			}
 			
 		}
@@ -449,27 +358,9 @@ public class PatientDetails extends JFrame implements ActionListener {
 		JOptionPane.showMessageDialog(null, msg);
 	}
 
-	private void refreshFields() {
-		textFieldID.setText(null);
-		textFieldName.setText(null);
-		textFieldMobile.setText(null);
-		model.removeAll();
-	}
+	
 
-	private class RowListener implements ListSelectionListener {
-
-		@Override
-		public void valueChanged(ListSelectionEvent e) {
-			// TODO Auto-generated method stub
-			if (e.getValueIsAdjusting()) {
-				return;
-			}
-			String pid = (String) model.getValueAt(table.getSelectedRow(), 0);
-			setDataInTable(pid);
-			//
-		}
-
-	}
+	
 
 	public void setDataInTable(String pid) {
 		if (!pid.isEmpty()) {
@@ -551,7 +442,7 @@ public class PatientDetails extends JFrame implements ActionListener {
 				String st = strList.get(3);
 				String attend = strList.get(4);
 				if (st.equals("1")) {
-					map.put(col5[2], "success");
+					map.put(col5[2], "present");
 				}else if (attend.equals(Constants.cancel)) {
 					map.put(col5[2], "cancel");
 				}else {

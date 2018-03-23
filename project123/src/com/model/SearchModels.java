@@ -79,6 +79,15 @@ public class SearchModels {
 		selectdata = selectData("patient_table", columns, where);
 		if (!selectdata.isEmpty()) {
 			data = selectdata.get(0).get(0);
+		}else {
+			columns.clear();
+			where.clear();
+			columns.add("refer_name");
+			where.put("refer_id", mobile);
+			selectdata = selectData("patient_table", columns, where);
+			if(!selectdata.isEmpty()) {
+				data = selectdata.get(0).get(0);
+			}
 		}
 
 		return data;

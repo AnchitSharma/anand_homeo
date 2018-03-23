@@ -10,6 +10,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -135,6 +137,9 @@ public class PdfModel {
 			dataTable.addCell(getCell("Sex: "+patient.getGender(), PdfPCell.ALIGN_LEFT));
 			dataTable.addCell(getCell(" ", PdfPCell.ALIGN_RIGHT));
 			
+			dataTable.addCell(getCell("Age: "+patient.getAge(), PdfPCell.ALIGN_LEFT));
+			dataTable.addCell(getCell(" ", PdfPCell.ALIGN_RIGHT));
+			
 			dataTable.addCell(getCell("Address: "+patient.getP_add(), PdfPCell.ALIGN_LEFT));
 			dataTable.addCell(getCell(" ", PdfPCell.ALIGN_RIGHT));
 			
@@ -240,8 +245,9 @@ public class PdfModel {
 	}
 	
 											//appointment Model					medicine model
-	public void printHistory(Patient patient,List<Appointment> app,List<MedicineModel> med) {
+	public void printHistory(String pid,List<Appointment> app,List<MedicineModel> med) {
 		document = new Document();
+		Patient patient = sm.getPatient(pid);
 		String doc_name =  "resource/"+"565225248787" + ".pdf";
 		
 		try {
@@ -261,12 +267,15 @@ public class PdfModel {
 			dataTable.addCell(getCell("Mobile: "+patient.getP_mobile(), PdfPCell.ALIGN_LEFT));
 			dataTable.addCell(getCell("Occupation: "+patient.getOccupation(), PdfPCell.ALIGN_RIGHT));
 			dataTable.addCell(getCell("Sex: "+patient.getGender(), PdfPCell.ALIGN_LEFT));
+			dataTable.addCell(getCell("", PdfPCell.ALIGN_RIGHT));
+			dataTable.addCell(getCell("Age: "+patient.getAge(), PdfPCell.ALIGN_LEFT));
 			dataTable.addCell(getCell("Address: "+patient.getP_add(), PdfPCell.ALIGN_RIGHT));
 			dataTable.addCell(getCell("District: "+patient.getDistrict(), PdfPCell.ALIGN_LEFT));
 			dataTable.addCell(getCell("Pincode: "+patient.getPincode(), PdfPCell.ALIGN_RIGHT));
 			dataTable.addCell(getCell("", PdfPCell.ALIGN_LEFT));
 			dataTable.addCell(getCell("Refrence Name: "+new SearchModels().searchNameMobile(patient.getRefer_name()), PdfPCell.ALIGN_RIGHT));
-			dataTable.addCell(getCell("Refernce Mobile: "+patient.getRefer_name(), PdfPCell.ALIGN_LEFT));
+			dataTable.addCell(getCell("", PdfPCell.ALIGN_LEFT));
+			dataTable.addCell(getCell("Refernce Mobile: "+patient.getRefer_name(), PdfPCell.ALIGN_RIGHT));
 			document.add(dataTable);
 			document.add(Chunk.NEWLINE);
 			
@@ -323,6 +332,7 @@ public class PdfModel {
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			showConformMessage(1, "please close the open pdf files");
 			e.printStackTrace();
 		}
 		
@@ -383,7 +393,9 @@ public class PdfModel {
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			showConformMessage(1, "please close the open pdf files");
 			e.printStackTrace();
+			
 		}
 	}
 	private String getDate() {
@@ -414,5 +426,16 @@ public class PdfModel {
 	        cell.addElement(new Paragraph(text,FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.BLACK)));
 	        
 	        return cell;
+	}
+	
+	private void showConformMessage(int count, String mesg) {
+		// TODO Auto-generated method stub
+
+		if(count == 1) {
+			JOptionPane.showMessageDialog(null, mesg,"Alert",JOptionPane.ERROR_MESSAGE);
+		}else {
+			JOptionPane.showMessageDialog(null, mesg);
+		}
+
 	}
 }

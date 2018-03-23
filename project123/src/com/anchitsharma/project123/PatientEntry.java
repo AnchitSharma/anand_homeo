@@ -330,6 +330,7 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		columns.add("p_dob");//11
 		columns.add("p_blood");//12
 		columns.add("marry_stat");//13
+		columns.add("refer_name");//14
 		where.put("p_mobile", mobile);
 		String p_id = "";
 		selectdata = sm.selectData("patient_table", columns, where);
@@ -345,6 +346,7 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 			txt_page.setText(strList.get(5));
 			txt_payment.setText(strList.get(6));
 			txt_ref_mob.setText(strList.get(7));
+			txt_ref_name.setSelectedItem(strList.get(14));
 			txt_ref_name.setSelectedItem(sm.searchNameMobile(strList.get(7)));
 			txt_occupation.setText(strList.get(8));
 			txt_district.setText(strList.get(9));
@@ -630,6 +632,7 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		what.put("p_age", txt_page.getText());
 		what.put("amt_paid", txt_payment.getText());
 		what.put("refer_id", txt_ref_mob.getText());
+		what.put("refer_name",txt_ref_name.getSelectedItem());
 		if(dobChooser.getDate() != null) {
 			what.put("p_dob", dateFormat.format(dobChooser.getDate()));
 		}
@@ -651,7 +654,7 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		what.put("payment", txt_payment.getText());
 		sm.updateDatabase("invoice_table", where, what);
 		System.out.println("count :::" + count);
-		showConformMessage(count, "Update Successfull");
+		showConformMessage(0, "Update Successfull");
 
 	}
 
@@ -743,8 +746,9 @@ public class PatientEntry extends JFrame implements DocumentListener, ActionList
 		}
 		columnsInsert.put("marry_stat", cmbMarry.getSelectedItem());
 		// columnsInsert.put("p_doc_id", Integer.valueOf(txt_dcode.getText()));
-		if (!txt_ref_mob.getText().isEmpty()) {
+		if (!txt_ref_mob.getText().isEmpty()&&txt_ref_name.getSelectedItem()!= "") {
 			columnsInsert.put("refer_id", txt_ref_mob.getText());
+			columnsInsert.put("refer_name", txt_ref_name.getSelectedItem());
 		} else {
 			columnsInsert.put("refer_id", 0);
 		}

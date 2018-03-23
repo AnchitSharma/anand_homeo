@@ -131,7 +131,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 	private JTextField txt_occupation;
 	private JTextField txt_pincode;
 	private JTextField txt_ref_name;
-	private JTextField txt_ref_mobile;
+	private JTextField txt_p_balance;
 	private JTextField txt_gender;
 	
 	private JMenuItem markpatient, markcancel,markDelete;
@@ -463,6 +463,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 			columns.add("refer_id");// 7
 			columns.add("p_gender");// 8
 			columns.add("p_district");//9
+			columns.add("p_amt_due");//10
 			switch (str) {
 			case "Registration No.":
 				// push object of patient
@@ -472,7 +473,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 				if (!selectdata.isEmpty()) {
 					String p_id = selectdata.get(0).get(0);
 					fillPatientDetials(
-							new Patient("", p_id, selectdata.get(0).get(1), "", "", "", "", selectdata.get(0).get(7),
+							new Patient("", p_id, selectdata.get(0).get(1), "", selectdata.get(0).get(10), "", "", selectdata.get(0).get(7),
 									selectdata.get(0).get(5), selectdata.get(0).get(2), selectdata.get(0).get(9),selectdata.get(0).get(6),
 									selectdata.get(0).get(8), selectdata.get(0).get(4), selectdata.get(0).get(3)));
 					fillMediTable(sm.getMedicines(p_id));
@@ -670,7 +671,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 				sm.updateDatabase("patient_table", savedata, what);
 
 				
-					Patient pat = new Patient("", txt_patientID.getText(), txt_pname.getText(), "", "", "", "",txt_ref_mobile.getText(),
+					Patient pat = new Patient("", txt_patientID.getText(), txt_pname.getText(), "", "", "", "","",
 							txt_padd.getText(), txt_pmobile.getText(), "", txt_pincode.getText(), txt_gender.getText(), txt_age.getText(), txt_occupation.getText());
 							/*new Patient("", txt_patientID.getText(), txt_pname.getText(), "", "", "", "", "", "",
 							txt_pmobile.getText());*/
@@ -780,7 +781,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		txt_age.setText(pat.getAge());
 		txt_occupation.setText(pat.getOccupation());
 		txt_ref_name.setText(sm.searchNameMobile(pat.getRefer_name()));
-		txt_ref_mobile.setText(pat.getRefer_name());
+		txt_p_balance.setText(pat.getP_amt_due());
 
 	}
 
@@ -978,17 +979,17 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		txt_ref_name.setBounds(122, 154, 143, 20);
 		panel_1.add(txt_ref_name);
 
-		JLabel lblRefName = new JLabel("Ref. Mobile");
+		JLabel lblRefName = new JLabel("Balance");
 		lblRefName.setHorizontalAlignment(SwingConstants.CENTER);
 		lblRefName.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		lblRefName.setBounds(275, 152, 106, 20);
 		panel_1.add(lblRefName);
 
-		txt_ref_mobile = new JTextField();
-		txt_ref_mobile.setFont(new Font("Times New Roman", Font.BOLD, 12));
-		txt_ref_mobile.setColumns(10);
-		txt_ref_mobile.setBounds(391, 153, 143, 20);
-		panel_1.add(txt_ref_mobile);
+		txt_p_balance = new JTextField();
+		txt_p_balance.setFont(new Font("Times New Roman", Font.BOLD, 12));
+		txt_p_balance.setColumns(10);
+		txt_p_balance.setBounds(391, 153, 143, 20);
+		panel_1.add(txt_p_balance);
 
 		JLabel lblGender = new JLabel("Gender");
 		lblGender.setHorizontalAlignment(SwingConstants.CENTER);

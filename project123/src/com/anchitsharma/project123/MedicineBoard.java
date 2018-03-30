@@ -54,6 +54,7 @@ import com.model.Constants;
 import com.model.MedicineModel;
 import com.model.PdfModel;
 import com.model.SearchModels;
+import com.sun.webkit.ContextMenu.ShowContext;
 import com.toedter.calendar.JDateChooser;
 import com.utility.AutoComplete;
 
@@ -103,7 +104,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 	private List<List<String>> selectdata;
 	List<String> columns;
 
-	final String col[] = { "Date", "Med Name", "quant(.mg)", "Price/piece", "No. of Tabs", "Total item cost" };
+	final String col[] = { "Date", "Med Name", "Remarks", "Price/piece", "No. of Tabs", "Total item cost" };
 	String col1[] = { "id", "Group name", "Medicine Name", "Type", "Price" };
 	private JPanel panel;
 	private JComboBox cmbxSelect;
@@ -140,11 +141,15 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 
 	private int stat2 = 0;
 	private JButton button;
+	private JButton btnUpdateDetails;
+	private JButton btnNext;
+	private JLabel lblTotalPayment;
+	private JTextField txt_payment;
 	/**
 	 * Create the frame.
 	 */
 	public MedicineBoard() {
-		setTitle("Medicose");
+		setTitle("Medicose                              Please Enter Registartion ID before entering Medicine");
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 0, 1019, 713);
@@ -486,22 +491,13 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 					selectdata = sm.selectData("patient_table", columns, where);
 					if (!selectdata.isEmpty()) {
 						String pat_id = selectdata.get(0).get(0);
-						// String reg_date, String p_id, String p_name, String p_bill_amt, String
-						// p_amt_due, String amt_paid,
-						// String p_doc_name, String refer_name, String p_add, String p_mobile, String
-						// pincode, String gender,
-						// String age, String occupation
-
-						// new Patient("", pat_id, selectdata.get(0).get(1), "", "", "", "",
-						// sm.searchNameMobile(selectdata.get(0).get(7)), selectdata.get(0).get(5),
-						// selectdata.get(0).get(2))
-
-						// send only ref mobile i will fetch the refral name
-						fillPatientDetials(new Patient("", pat_id, selectdata.get(0).get(1), "", "", "", "",
+						
+						fillPatientDetials(new Patient("", pat_id, selectdata.get(0).get(1), "", selectdata.get(0).get(10), "", "",
 								selectdata.get(0).get(7), selectdata.get(0).get(5), selectdata.get(0).get(2),
 								selectdata.get(0).get(9),selectdata.get(0).get(6), selectdata.get(0).get(8), selectdata.get(0).get(4),
 								selectdata.get(0).get(3)));
 						tableUpdate = true;
+						if(!pat_id.isEmpty())
 						fillMediTable(sm.getMedicines(pat_id));
 					}
 				}
@@ -615,7 +611,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 
 		if (event.getSource() == btnSave) {
 			List<MedicineModel> medicineModels = new ArrayList<>();
-			if (!txt_return.getText().isEmpty()) {
+			if (!txt_return.getText().isEmpty()&&!txt_payment.getText().isEmpty()) {
 				for (int i = 0; i < table_medicine.getRowCount(); i++) {
 					savedata = new HashMap<>();
 					savedata.put("invoice_number", txt_invoice.getText());
@@ -659,14 +655,20 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 					savedata.put("by_cash", "");
 					savedata.put("by_courier", 1);
 				}
-				savedata.put("item_amt", txt_net_amt.getText());
+				String net_cost = txt_net_amt.getText();
+				savedata.put("item_amt", net_cost);
 				savedata.put("gst_apply", txt_gst.getText());
-				
+				double net_total = Double.parseDouble(net_cost);
+				double net_pay = Double.parseDouble(txt_payment.getText());
+				double bal = net_total - net_pay;
+				savedata.put("pay_due", bal);
 				sm.storeInDatabase("medicine_order_entry", savedata);
 				savedata.clear();// used as where
 				savedata.put("p_id", txt_patientID.getText());
 				Map<String, Object> what = new HashMap<>();
 				what.put("last_visited", dateFormat.format(date));
+				bal = bal + sm.getDueBalance(txt_patientID.getText());
+				what.put("p_amt_due", bal);
 				enterDiagnos();
 				sm.updateDatabase("patient_table", savedata, what);
 
@@ -676,15 +678,16 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 							/*new Patient("", txt_patientID.getText(), txt_pname.getText(), "", "", "", "", "", "",
 							txt_pmobile.getText());*/
 					PdfModel pdfModel = new PdfModel();
-					pdfModel.prepareReceipt(txt_invoice.getText(), medicineModels, txt_patientID.getText());
+					pdfModel.prepareReceipt(txt_invoice.getText(), medicineModels, txt_patientID.getText(),txt_payment.getText());
 				
 				if (chckbxByCourier.isSelected()) {
 					pdfModel.courierReceipt("courier_invoice", txt_patientID.getText());
 				}
 				resetTextFields();
 				txt_invoice.setText(JavaConnect.uniqueCurrentTimeStamp());
+				bal =0;
 			} else {
-				JOptionPane.showMessageDialog(null, "Please Fill the prescription time");
+				JOptionPane.showMessageDialog(null, "Please Fill the prescription time \n Payment Amount..");
 			}
 		}
 		
@@ -703,9 +706,34 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 			String where = " where med_name = \'"+medicine+"\'";
 			sm.deleteTable("medicine_record", where);
 		}
+		if (event.getSource() == btnNext) {
+			resetTextFields();
+		}
 		
 		if(event.getSource() == button) {
 			MedicineBoard.this.dispose();
+		}
+		
+		if (event.getSource() == btnUpdateDetails) {
+			int type = cmb_searchby.getSelectedIndex();
+			where = new HashMap<>();
+			savedata = new HashMap<>();
+			if (type==0) {
+				where.put("p_id", txt_search.getText());
+			}
+			
+			if (type==1) {
+				where.put("p_mobile", txt_search.getText());
+			}
+			savedata.put("p_name", txt_pname.getText());
+			savedata.put("p_id", txt_patientID.getText());
+			savedata.put("p_add", txt_padd.getText());
+			savedata.put("p_gender", txt_gender.getText());
+			savedata.put("p_age", txt_age.getText());
+			savedata.put("pincode", txt_pincode.getText());
+			savedata.put("occupation", txt_occupation.getText());
+			sm.updateDatabase("patient_table", where, savedata);
+			displayConfMessage("Details Updated Successfully");
 		}
 
 	}
@@ -741,6 +769,8 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		txt_return.setText(null);
 		txt_t_disc.setText(null);
 		textAreaRemark.setText(null);
+		txt_search.setText(null);
+		txt_payment.setText(null);
 
 	}
 
@@ -861,7 +891,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		txt_invoice.setText(JavaConnect.uniqueCurrentTimeStamp());
 		txt_invoice.setColumns(10);
 
-		JLabel lblFromDate = new JLabel("Patient Name");
+		JLabel lblFromDate = new JLabel("Patient Name*");
 		lblFromDate.setHorizontalAlignment(SwingConstants.CENTER);
 		lblFromDate.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		lblFromDate.setBounds(0, 66, 123, 20);
@@ -873,7 +903,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		lblToDate.setBounds(275, 66, 106, 20);
 		panel_1.add(lblToDate);
 
-		JLabel lblPatientId = new JLabel("Registartion No.");
+		JLabel lblPatientId = new JLabel("Registartion No.*");
 		lblPatientId.setHorizontalAlignment(SwingConstants.CENTER);
 		lblPatientId.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		lblPatientId.setBounds(274, 37, 117, 20);
@@ -919,7 +949,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		txt_search.setBounds(272, 5, 143, 20);
 		panel_1.add(txt_search);
 
-		JLabel lblAddress = new JLabel("Address");
+		JLabel lblAddress = new JLabel("Address*");
 		lblAddress.setHorizontalAlignment(SwingConstants.CENTER);
 		lblAddress.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		lblAddress.setBounds(6, 97, 106, 20);
@@ -931,7 +961,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		txt_padd.setBounds(122, 97, 143, 20);
 		panel_1.add(txt_padd);
 
-		JLabel lblOccupation = new JLabel("Age");
+		JLabel lblOccupation = new JLabel("Age*");
 		lblOccupation.setHorizontalAlignment(SwingConstants.CENTER);
 		lblOccupation.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		lblOccupation.setBounds(6, 128, 106, 20);
@@ -949,7 +979,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		txt_occupation.setBounds(267, 129, 114, 20);
 		panel_1.add(txt_occupation);
 
-		JLabel lblPincode = new JLabel("Pincode");
+		JLabel lblPincode = new JLabel("Pincode*");
 		lblPincode.setHorizontalAlignment(SwingConstants.CENTER);
 		lblPincode.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		lblPincode.setBounds(275, 97, 74, 20);
@@ -961,7 +991,7 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		txt_pincode.setBounds(346, 97, 74, 20);
 		panel_1.add(txt_pincode);
 
-		JLabel lblOccupation_1 = new JLabel("Occupation");
+		JLabel lblOccupation_1 = new JLabel("Occupation*");
 		lblOccupation_1.setHorizontalAlignment(SwingConstants.CENTER);
 		lblOccupation_1.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		lblOccupation_1.setBounds(168, 128, 92, 20);
@@ -982,16 +1012,16 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		JLabel lblRefName = new JLabel("Balance");
 		lblRefName.setHorizontalAlignment(SwingConstants.CENTER);
 		lblRefName.setFont(new Font("Times New Roman", Font.BOLD, 14));
-		lblRefName.setBounds(275, 152, 106, 20);
+		lblRefName.setBounds(391, 128, 63, 20);
 		panel_1.add(lblRefName);
 
 		txt_p_balance = new JTextField();
 		txt_p_balance.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		txt_p_balance.setColumns(10);
-		txt_p_balance.setBounds(391, 153, 143, 20);
+		txt_p_balance.setBounds(457, 129, 87, 20);
 		panel_1.add(txt_p_balance);
 
-		JLabel lblGender = new JLabel("Gender");
+		JLabel lblGender = new JLabel("Gender*");
 		lblGender.setHorizontalAlignment(SwingConstants.CENTER);
 		lblGender.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		lblGender.setBounds(435, 97, 63, 20);
@@ -1002,6 +1032,13 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		txt_gender.setColumns(10);
 		txt_gender.setBounds(508, 97, 36, 20);
 		panel_1.add(txt_gender);
+		
+		btnUpdateDetails = new JButton("Update ");
+		btnUpdateDetails.setToolTipText("Update Only * Fields");
+		btnUpdateDetails.addActionListener(this);
+		btnUpdateDetails.setFont(new Font("Times New Roman", Font.BOLD, 12));
+		btnUpdateDetails.setBounds(435, 159, 99, 20);
+		panel_1.add(btnUpdateDetails);
 
 		panel_2 = new JPanel();
 		panel_2.setBounds(569, 22, 409, 174);
@@ -1232,14 +1269,14 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		JLabel label = new JLabel("Total Item");
 		label.setHorizontalAlignment(SwingConstants.CENTER);
 		label.setFont(new Font("Times New Roman", Font.BOLD, 11));
-		label.setBounds(298, 11, 96, 26);
+		label.setBounds(10, 12, 96, 26);
 		panel_4.add(label);
 
 		txt_amt = new JTextField();
 
 		txt_amt.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		txt_amt.setColumns(10);
-		txt_amt.setBounds(410, 13, 75, 24);
+		txt_amt.setBounds(116, 13, 75, 24);
 		txt_amt.getDocument().addDocumentListener(this);
 		txt_amt.getDocument().putProperty("txt_amt", txt_amt);
 		panel_4.add(txt_amt);
@@ -1261,13 +1298,13 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		JLabel label_2 = new JLabel("Total Amount");
 		label_2.setHorizontalAlignment(SwingConstants.CENTER);
 		label_2.setFont(new Font("Times New Roman", Font.BOLD, 11));
-		label_2.setBounds(530, 11, 102, 26);
+		label_2.setBounds(201, 12, 102, 26);
 		panel_4.add(label_2);
 
 		txt_net_amt = new JTextField();
 		txt_net_amt.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		txt_net_amt.setColumns(10);
-		txt_net_amt.setBounds(637, 13, 115, 24);
+		txt_net_amt.setBounds(314, 13, 115, 24);
 		panel_4.add(txt_net_amt);
 
 		JLabel label_3 = new JLabel("GST Applicable");
@@ -1325,6 +1362,24 @@ public class MedicineBoard extends JFrame implements DocumentListener, ActionLis
 		final ButtonGroup bg = new ButtonGroup();
 		bg.add(chckbxCash);
 		bg.add(chckbxByCourier);
+		
+		btnNext = new JButton("Next");
+		btnNext.addActionListener(this);
+		btnNext.setFont(new Font("Times New Roman", Font.BOLD, 12));
+		btnNext.setBounds(405, 103, 96, 26);
+		panel_4.add(btnNext);
+		
+		lblTotalPayment = new JLabel("Total Payment");
+		lblTotalPayment.setHorizontalAlignment(SwingConstants.CENTER);
+		lblTotalPayment.setFont(new Font("Times New Roman", Font.BOLD, 11));
+		lblTotalPayment.setBounds(524, 99, 102, 26);
+		panel_4.add(lblTotalPayment);
+		
+		txt_payment = new JTextField();
+		txt_payment.setFont(new Font("Times New Roman", Font.BOLD, 12));
+		txt_payment.setColumns(10);
+		txt_payment.setBounds(637, 100, 115, 24);
+		panel_4.add(txt_payment);
 		
 	}
 }

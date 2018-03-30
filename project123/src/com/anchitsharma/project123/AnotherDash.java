@@ -472,7 +472,7 @@ public class AnotherDash implements ActionListener, PatientListener {
 
 		JScrollPane scrollPane_5 = new JScrollPane();
 		panel_10.add(scrollPane_5, BorderLayout.CENTER);
-		String cols[] = { "Reg. No.", "Reg. Date", "Name", " Mobile", "Address","District" ,"Refer By", "Last Visit Date" };
+		String cols[] = { "Reg. No.", "Reg. Date", "Name", " Mobile", "Address","District" ,"Refer By", "Refer Mobile" };
 
 		tableModel = new DefaultTableModel(0, 0);
 		tableModel.setColumnIdentifiers(cols);
@@ -1213,15 +1213,15 @@ public class AnotherDash implements ActionListener, PatientListener {
 		Vector<Object> data;
 		where = new HashMap<>();
 
-		columns.add("p_id");
-		columns.add("reg_date");
-		columns.add("p_name");
-		columns.add("p_mobile");
-		columns.add("p_add");
-		columns.add("p_district");
-		columns.add("p_doc_id");
-		columns.add("refer_id");
-		columns.add("last_visited");
+		columns.add("p_id");//0
+		columns.add("reg_date");//1
+		columns.add("p_name");//2
+		columns.add("p_mobile");//3
+		columns.add("p_add");//4
+		columns.add("p_district");//5
+		columns.add("p_doc_id");//6
+		columns.add("refer_id");//7
+		columns.add("last_visited");//8
 		String grpdata = " order by id desc";
 		selectdata = sm.selectData("patient_table", columns, where,grpdata);
 
@@ -1230,20 +1230,20 @@ public class AnotherDash implements ActionListener, PatientListener {
 			data = new Vector<>();
 			// String cols[] = { "Reg. No.","Reg. Date", "Name", " Mobile", "Address",
 			// "Refer By", "Last Visit Date" };
-			data.add(list1.get(i));// id
+			data.add(list1.get(0));// id
 
-			data.add(list1.get(++i));// date
-			String pname = list1.get(++i);
+			data.add(list1.get(1));// date
+			String pname = list1.get(2);
 			data.add(pname);// name
-			data.add(list1.get(++i));// mobile
-			data.add(list1.get(++i));// address
+			data.add(list1.get(3));// mobile
+			data.add(list1.get(4));// address
 			List<String> c1 = new ArrayList<>();
-			data.add(list1.get(++i));//district
-			++i;
-			String pid = list1.get(++i);// refer_id
+			data.add(list1.get(5));//district
+			
+			String pid = list1.get(7);// refer_id
 
 			data.add(sm.searchNameMobile(pid));
-			data.add(list1.get(++i));// lastvisited
+			data.add(list1.get(7));// lastvisited
 			tableModel.addRow(data);
 
 		}
@@ -1612,7 +1612,7 @@ public class AnotherDash implements ActionListener, PatientListener {
 //			print(tabbedPane_1.getSelectedComponent());
 			
 			int tab = tabbedPane_1.getSelectedIndex();
-			List<Patient> patientList = new ArrayList<>();
+			List<String> patientList = new ArrayList<>();
 			try {
 			switch(tab) {
 			case 0:
@@ -1630,8 +1630,7 @@ public class AnotherDash implements ActionListener, PatientListener {
 				for(int i =0;i<printerCount;i++) {
 
 					
-					patientList.add(new Patient((String)table.getValueAt(i, 1), (String)table.getValueAt(i, 0),
-							(String)table.getValueAt(i, 2), "", "", "", "", (String)table.getValueAt(i, 5), (String)table.getValueAt(i, 4), (String)table.getValueAt(i, 3), "", "", "", "", ""));
+					patientList.add((String)table.getValueAt(i, 0));
 				}
 				new PdfModel().printPatientList(cols, patientList);
 				break;

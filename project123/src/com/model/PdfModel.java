@@ -101,7 +101,7 @@ public class PdfModel {
 	}
 	
 	
-	public void prepareReceipt(String invoice_num,List<MedicineModel> model,String pid) {
+	public void prepareReceipt(String invoice_num,List<MedicineModel> model,String pid,String payment) {
 	
 		document = new Document();
 		Patient patient = sm.getPatient(pid);
@@ -181,6 +181,10 @@ public class PdfModel {
 			table1.setSpacingBefore(20);
 			table1.addCell("amount");
 			table1.addCell(String.format("%.2f", amt));
+			table1.addCell("Payment");
+			table1.addCell( payment);
+			table1.addCell("Due");
+			table1.addCell( patient.getP_amt_due());
 			document.add(table1);
 			document.close();
 			
@@ -338,7 +342,11 @@ public class PdfModel {
 		
 	}
 	
-	public void printPatientList(String[] header,List<Patient> patList) {
+	public void printPatientList(String[] header,List<String> patList) {
+		/*
+		 * "Reg. No.","Reg. Date", "Name", " Mobile", "Address","District",
+						"Refer By", "Last Visit Date" */
+		
 		int colCount = header.length;
 		document = new Document();
 		String doc_name =  "resource/"+"878788" + ".pdf";
@@ -361,7 +369,8 @@ public class PdfModel {
 			
 			table.setHeaderRows(1);
 			
-			for(Patient a: patList) {
+			for(String pid: patList) {
+				Patient a = sm.getPatient(pid);
 				table.addCell(getCell(a.getP_id()));
 				table.addCell(getCell(a.getReg_date()));
 				table.addCell(getCell(a.getP_name()));

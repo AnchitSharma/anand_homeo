@@ -55,20 +55,35 @@ public class SearchModels {
 		columns.add("p_gender");//9
 		columns.add("p_age");//10
 		columns.add("refer_id");//11
-		where.put("p_id", pid);//12
+		columns.add("p_amt_due");//12
+		columns.add("reg_date");//13
+		where.put("p_id", pid);
 		
 		selectdata = selectData("patient_table", columns, where);
 		if(!selectdata.isEmpty()) {
 			for(List<String>str :selectdata) {
-				p = new Patient("", str.get(0), str.get(1), "", "", 
-						"", "", str.get(11), str.get(4), str.get(2), str.get(5), str.get(6), str.get(9), 
+				p = new Patient(str.get(13), str.get(0), str.get(1), "", str.get(12), 
+						"", "", searchNameMobile(str.get(11)), str.get(4), str.get(2), str.get(5), str.get(6), str.get(9), 
 						str.get(10), str.get(7));
+			
 			}
 			
 		}
 		return p;
 	}
-
+	
+	public double getDueBalance(String pid) {
+		Patient p = getPatient(pid);
+		double bal = 0;
+		try {
+		if (p != null && p.getP_amt_due() != null && !p.getP_amt_due().isEmpty() && !p.getP_amt_due().equalsIgnoreCase("null")) {
+			bal =  Double.parseDouble(p.getP_amt_due());
+		}
+		}catch(Exception e) {
+			bal =0;
+		}
+		return bal;
+	} 
 	public String searchNameMobile(String mobile) {
 
 		String data = "";
@@ -80,7 +95,7 @@ public class SearchModels {
 		if (!selectdata.isEmpty()) {
 			data = selectdata.get(0).get(0);
 		}else {
-			columns.clear();
+			columns = new ArrayList<>();
 			where.clear();
 			columns.add("refer_name");
 			where.put("refer_id", mobile);

@@ -88,6 +88,7 @@ public class PatientDetails extends JFrame implements ActionListener {
 	private JCheckBox chckbxActive;
 	
 	private Patient patient;
+	private JTextField txt_balance;
 
 	/**
 	 * Launch the application.
@@ -99,32 +100,16 @@ public class PatientDetails extends JFrame implements ActionListener {
 	 */
 	public PatientDetails(String id) {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 900, 653);
+		setBounds(100, 100, 953, 649);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		model = new MyTableModel();
 		model.setColumnNames(col4);
-		chckbxActive = new JCheckBox("Active");
-		chckbxActive.setFont(new Font("Times New Roman", Font.BOLD, 12));
-		chckbxActive.setBounds(21, 532, 97, 23);
-		contentPane.add(chckbxActive);
-
-		btnInActive = new JButton("Mark Inactive");
-		btnInActive.addActionListener(this);
-		btnInActive.setFont(new Font("Times New Roman", Font.BOLD, 12));
-		btnInActive.setBounds(21, 566, 112, 23);
-		contentPane.add(btnInActive);
-
-		btnPrint = new JButton("Print");
-		btnPrint.addActionListener(this);
-		btnPrint.setFont(new Font("Times New Roman", Font.BOLD, 12));
-		btnPrint.setBounds(136, 566, 97, 23);
-		contentPane.add(btnPrint);
 		
 		panel_1 = new JPanel();
-		panel_1.setBounds(237, 11, 647, 604);
+		panel_1.setBounds(10, 11, 877, 604);
 		contentPane.add(panel_1);
 		panel_1.setLayout(null);
 		
@@ -290,6 +275,34 @@ public class PatientDetails extends JFrame implements ActionListener {
 		scrollPane_2.setViewportView(medicine_table);
 		JTableHeader h2 = medicine_table.getTableHeader();
 		panel_3.add(BorderLayout.NORTH,h2);
+		chckbxActive = new JCheckBox("Active");
+		chckbxActive.setBounds(650, 91, 97, 23);
+		panel_1.add(chckbxActive);
+		chckbxActive.setFont(new Font("Times New Roman", Font.BOLD, 12));
+		
+				btnInActive = new JButton("Mark Inactive");
+				btnInActive.setBounds(650, 125, 112, 23);
+				panel_1.add(btnInActive);
+				btnInActive.addActionListener(this);
+				btnInActive.setFont(new Font("Times New Roman", Font.BOLD, 12));
+				
+						btnPrint = new JButton("Print");
+						btnPrint.setBounds(647, 159, 115, 23);
+						panel_1.add(btnPrint);
+						btnPrint.addActionListener(this);
+						btnPrint.setFont(new Font("Times New Roman", Font.BOLD, 12));
+						
+						JLabel lbl_balnce = new JLabel("Balance");
+						lbl_balnce.setHorizontalAlignment(SwingConstants.CENTER);
+						lbl_balnce.setFont(new Font("Times New Roman", Font.BOLD, 14));
+						lbl_balnce.setBounds(647, 12, 81, 20);
+						panel_1.add(lbl_balnce);
+						
+						txt_balance = new JTextField();
+						txt_balance.setFont(new Font("Times New Roman", Font.BOLD, 12));
+						txt_balance.setColumns(10);
+						txt_balance.setBounds(729, 12, 106, 20);
+						panel_1.add(txt_balance);
 	}
 
 	@Override
@@ -381,11 +394,12 @@ public class PatientDetails extends JFrame implements ActionListener {
 			columns.add("last_visited");//12
 			columns.add("reg_date");//13
 			columns.add("active");//14
+			columns.add("p_amt_due");//15
 			map.put("p_id", pid);
 			selectdata = sm.selectData("patient_table", columns, map);
 			if (!selectdata.isEmpty()) {
 				for(List<String> strList:selectdata) {
-					patient = new Patient(strList.get(13),strList.get(0), strList.get(1), "", "", "", "",
+					patient = new Patient(strList.get(13),strList.get(0), strList.get(1), "", strList.get(15), "", "",
 							strList.get(11), strList.get(4), strList.get(2), strList.get(5), strList.get(6)
 							, strList.get(9), strList.get(10), strList.get(7));
 				setDataInTextArea(patient);
@@ -415,7 +429,7 @@ public class PatientDetails extends JFrame implements ActionListener {
 	poccupation.setText(pat.getOccupation());
 	ref_name.setText(sm.searchNameMobile(pat.getRefer_name()));
 	ref_mob.setText(pat.getRefer_name());
-	
+	txt_balance.setText(pat.getP_amt_due());
 		
 	}
 	
